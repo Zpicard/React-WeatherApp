@@ -8,19 +8,25 @@ const WeatherApp = () => {
   const [weatherDataList, setWeatherDataList] = useState([]);
   const [error, setError] = useState(null);
   const [cityInput, setCityInput] = useState('');
+  const [stateInput, setStateInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const city = cityInput.trim();
-    if (city) {
-      setSearchTerm(city);
+    const state = stateInput.trim();
+    if (city && state) {
+      setSearchTerm(`${city},${state},US`);
       setIsLoading(true);
     }
   };
 
-  const handleInputChange = (event) => {
+  const handleCityInputChange = (event) => {
     setCityInput(event.target.value);
+  };
+
+  const handleStateInputChange = (event) => {
+    setStateInput(event.target.value.toUpperCase());
   };
 
   useEffect(() => {
@@ -37,7 +43,7 @@ const WeatherApp = () => {
         const response = await fetch(API_URL);
         
         if (!response.ok) {
-          throw new Error(`City "${searchTerm}" not found. Please check the spelling and try again.`);
+          throw new Error(`City "${searchTerm.split(',')[0]}" not found in ${searchTerm.split(',')[1]}. Please check the spelling and try again.`);
         }
         
         const data = await response.json();
@@ -49,6 +55,7 @@ const WeatherApp = () => {
         } else {
           setWeatherDataList(prevList => [...prevList, data]);
           setCityInput('');
+          setStateInput('');
           setError(null);
         }
       } catch (error) {
@@ -68,85 +75,91 @@ const WeatherApp = () => {
   };
 
   return (
-    <>
+    <div className="weather-app">
       <header className="app-header">
-        <h1 className="app-title">Weather Dashboard</h1>
-        <p className="app-subtitle">Track weather conditions across multiple cities</p>
+        <div className="header-content">
+          <h1 className="app-title">Weather Dashboard</h1>
+          <p className="app-subtitle">Track weather conditions across multiple cities</p>
+        </div>
       </header>
 
-      <Container className="py-5">
-        <Card className="shadow-sm mb-4">
-          <Card.Body>
-            <Row className="justify-content-center">
-              <Col md={8}>
-                <Form onSubmit={handleSubmit}>
-                  <Form.Group className="mb-3">
-                    <div className="input-group">
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter city name"
-                        value={cityInput}
-                        onChange={handleInputChange}
-                        className="form-control-lg"
-                      />
-                      <Button 
-                        variant="primary" 
-                        type="submit" 
-                        className="px-4"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <>
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                              className="me-2"
-                            />
-                            Searching...
-                          </>
-                        ) : (
-                          'Search'
-                        )}
-                      </Button>
-                    </div>
-                  </Form.Group>
-                </Form>
+      <main className="app-main">
+        <Container fluid className="search-container">
+          <Card className="search-card">
+            <Card.Body>
+              <Form onSubmit={handleSubmit} className="search-form">
+                <div className="input-group">
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter city name"
+                    value={cityInput}
+                    onChange={handleCityInputChange}
+                    className="city-input"
+                  />
+                  <Form.Control
+                    type="text"
+                    placeholder="State (e.g., MA)"
+                    value={stateInput}
+                    onChange={handleStateInputChange}
+                    className="state-input"
+                    maxLength={2}
+                  />
+                  <Button 
+                    variant="primary" 
+                    type="submit" 
+                    className="search-button"
+                    disabled={isLoading || !cityInput || !stateInput}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"
+                        />
+                        Searching...
+                      </>
+                    ) : (
+                      'Search'
+                    )}
+                  </Button>
+                </div>
                 {error && (
-                  <Alert variant="danger" className="mt-3">
+                  <Alert variant="danger" className="error-message">
                     {error}
                   </Alert>
                 )}
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Container>
 
-        <div className="weather-grid">
-          <Row xs={1} md={2} lg={3} xl={4} className="g-4">
+        <Container fluid className="weather-container">
+          <div className="weather-grid">
             {weatherDataList.map((weatherData) => (
-              <Col key={weatherData.id}>
+              <div key={weatherData.id} className="weather-card-wrapper">
                 <WeatherCard 
                   weatherData={weatherData} 
                   onRemove={() => removeCity(weatherData.id)} 
                 />
-              </Col>
+              </div>
             ))}
-          </Row>
-        </div>
-  
+          </div>
+        </Container>
+
         {weatherDataList.length === 0 && !isLoading && !error && (
-          <Card className="text-center mt-5 shadow-sm">
+          <Card className="welcome-card">
             <Card.Body>
-              <h3 className="text-muted">Welcome to Weather Dashboard</h3>
-              <p className="text-muted">Search for a city to see the weather forecast.</p>
+              <h3 className="welcome-title">Welcome to Weather Dashboard</h3>
+              <p className="welcome-text">Search for a city and state to see the weather forecast.</p>
             </Card.Body>
           </Card>
         )}
-      </Container>
-    </>
+      </main>
+    </div>
   );
 };
 
