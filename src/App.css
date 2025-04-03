@@ -1,0 +1,83 @@
+.weather-grid {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.weather-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.weather-grid::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.weather-grid::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.weather-grid::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.weather-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  max-width: 100%;
+}
+
+.weather-card .card-body {
+  flex: 1;
+  overflow: hidden;
+}
+
+.weather-card-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Ensure the container takes full width */
+.container {
+  max-width: 100%;
+  padding: 0 20px;
+}
+
+/* Remove fixed column widths and let Bootstrap handle the layout */
+.weather-grid .col {
+  flex: 1;
+  min-width: 280px;
+  max-width: 100%;
+}
+
+/* Adjust the grid layout for different screen sizes */
+@media (min-width: 576px) {
+  .weather-grid .col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .weather-grid .col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 992px) {
+  .weather-grid .col {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .weather-grid .col {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+} 
